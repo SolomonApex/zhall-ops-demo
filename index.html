@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Z Hall | Event Operations</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0A0F1E;
+    color: #FFFFFF;
+    min-height: 100vh;
+  }
+
+  /* ===== HEADER ===== */
+  .app-header {
+    background: #0A0F1E;
+    border-bottom: 2px solid #C8A96A;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-logo {
+    font-size: 20px;
+    font-weight: 800;
+    color: #C8A96A;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .header-divider {
+    width: 1px;
+    height: 28px;
+    background: #C8A96A40;
+  }
+  .header-subtitle {
+    font-size: 12px;
+    color: #C8A96A99;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .header-event {
+    text-align: right;
+  }
+  .header-event-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #FFFFFF;
+  }
+  .header-event-date {
+    font-size: 11px;
+    color: #C8A96A;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* ===== NAV TABS ===== */
+  .nav-tabs {
+    background: #0d1326;
+    border-bottom: 1px solid #1a2240;
+    display: flex;
+    gap: 0;
+    padding: 0 24px;
+    overflow-x: auto;
+  }
+  .nav-tab {
+    padding: 14px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #8899bb;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-transform: uppercase;
+    user-select: none;
+  }
+  .nav-tab:hover { color: #FFFFFF; border-bottom-color: #C8A96A44; }
+  .nav-tab.active { color: #C8A96A; border-bottom-color: #C8A96A; }
+
+  /* ===== MAIN CONTENT ===== */
+  .tab-content { display: none; padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
+  .tab-content.active { display: block; }
+
+  /* ===== SECTION HEADING ===== */
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    margin-top: 32px;
+  }
+  .section-heading:first-child { margin-top: 0; }
+  .section-heading h2 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #C8A96A;
+  }
+  .section-heading-line {
+    flex: 1;
+    height: 1px;
+    background: #1a2240;
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: #0d1326;
+    border: 1px solid #1a2240;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #C8A96A;
+    margin-bottom: 14px;
+  }
+
+  /* ===== GRID LAYOUTS ===== */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 768px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+
+  /* ===== EVENT SUMMARY ===== */
+  .event-summary {
+    background: linear-gradient(135deg, #0d1326 0%, #111827 100%);
+    border: 1px solid #C8A96A40;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .event-summary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    right: 0; height: 3px;
+    background: linear-gradient(90deg, #C8A96A, #e8c97a, #C8A96A);
+  }
+  .event-couple {
+    font-size: 28px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+  }
+  .event-couple span { color: #C8A96A; }
+  .event-meta {
+    font-size: 13px;
+    color: #8899bb;
+    margin-bottom: 24px;
+  }
+  .event-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 768px) { .event-stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat-item { }
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #C8A96A;
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #FFFFFF;
+  }
+  .stat-sub {
+    font-size: 11px;
+    color: #8899bb;
+    margin-top: 2px;
+  }
+
+  /* ===== TIMELINE ===== */
+  .timeline { position: relative; padding-left: 0; }
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 80px 24px 1fr;
+    gap: 0 14px;
+    margin-bottom: 0;
+    align-items: stretch;
+  }
+  .tl-time {
+    font-size: 12px;
+    font-weight: 700;
+    color: #C8A96A;
+    text-align: right;
+    padding-top: 3px;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+  .tl-icon-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .tl-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #C8A96A;
+    border: 2px solid #0A0F1E;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .tl-dot.milestone {
+    width: 16px;
+    height: 16px;
+    background: #C8A96A;
+    box-shadow: 0 0 0 4px #C8A96A22;
+    margin-top: 2px;
+  }
+  .tl-line {
+    width: 2px;
+    flex: 1;
+    background: #1a2240;
+    margin: 4px auto 0;
+    min-height: 20px;
+  }
+  .timeline-item:last-child .tl-line { display: none; }
+  .tl-body { padding: 2px 0 20px; }
+  .tl-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+  .tl-detail {
+    font-size: 12px;
+    color: #8899bb;
+    margin-top: 3px;
+  }
+
+  /* ===== STAFF ROSTER ===== */
+  .staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 12px;
+  }
+  .staff-card {
+    background: #111827;
+    border: 1px solid #1a2240;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .staff-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+  }
+  .staff-role {
+    font-size: 11px;
+    color: #C8A96A;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .staff-dept {
+    font-size: 11px;
+    color: #8899bb;
+    margin-top: 2px;
+  }
+
+  /* ===== ALERTS ===== */
+  .alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .alert-danger { background: #2d0a0a; border: 1px solid #7a2020; }
+  .alert-warning { background: #2a1f08; border: 1px solid #7a5520; }
+  .alert-info { background: #08192d; border: 1px solid #1a4060; }
+  .alert-success { background: #0a2d1a; border: 1px solid #1a6040; }
+  .alert-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .alert-text { font-size: 13px; color: #FFFFFF; line-height: 1.5; }
+  .alert-label { font-weight: 700; }
+
+  /* ===== TABLES ===== */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #C8A96A;
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid #1a2240;
+  }
+  .data-table td {
+    font-size: 13px;
+    color: #FFFFFF;
+    padding: 11px 14px;
+    border-bottom: 1px solid #1a2240;
+    line-height: 1.4;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: #111827; }
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .badge-red { background: #7a2020; color: #ffaaaa; }
+  .badge-gold { background: #3a2a08; color: #C8A96A; }
+  .badge-green { background: #0a3020; color: #66ddaa; }
+  .badge-blue { background: #082030; color: #66aadd; }
+  .badge-gray { background: #1a2240; color: #8899bb; }
+
+  /* ===== CHECKLIST ===== */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #1a2240;
+    font-size: 13px;
+    color: #FFFFFF;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #C8A96A40;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .check-sub {
+    font-size: 11px;
+    color: #8899bb;
+    margin-top: 2px;
+  }
+
+  /* ===== RECIPE CARD ===== */
+  .recipe-card {
+    background: #111827;
+    border: 1px solid #C8A96A30;
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .recipe-name {
+    font-size: 18px;
+    font-weight: 800;
+    color: #C8A96A;
+    margin-bottom: 4px;
+  }
+  .recipe-tagline {
+    font-size: 12px;
+    color: #8899bb;
+    margin-bottom: 16px;
+  }
+  .recipe-ingredients { list-style: none; margin-bottom: 14px; }
+  .recipe-ingredients li {
+    font-size: 13px;
+    color: #FFFFFF;
+    padding: 5px 0;
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid #1a2240;
+  }
+  .recipe-ingredients li:last-child { border-bottom: none; }
+  .ri-qty { color: #C8A96A; font-weight: 700; min-width: 50px; }
+  .ri-item { flex: 1; }
+  .recipe-method {
+    font-size: 12px;
+    color: #8899bb;
+    line-height: 1.6;
+    padding: 12px 14px;
+    background: #0A0F1E;
+    border-radius: 6px;
+  }
+
+  /* ===== FLOOR MAP ===== */
+  .floor-map {
+    background: #111827;
+    border: 1px solid #1a2240;
+    border-radius: 10px;
+    padding: 24px;
+    position: relative;
+  }
+  .floor-map-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #C8A96A;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .floor-diagram {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .table-icon {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .table-icon.guest-table {
+    background: #1a2240;
+    border: 1px solid #2a3450;
+    color: #8899bb;
+  }
+  .table-icon.allergy-table {
+    background: #2d1010;
+    border: 1px solid #7a2020;
+    color: #ffaaaa;
+  }
+  .table-icon.head-table {
+    background: #3a2a08;
+    border: 1px solid #7a5520;
+    color: #C8A96A;
+    grid-column: span 2;
+    aspect-ratio: unset;
+    padding: 8px;
+  }
+  .table-icon.sweet-table {
+    background: #0a2d1a;
+    border: 1px solid #1a6040;
+    color: #66ddaa;
+  }
+  .table-icon.special {
+    background: #0a1a2d;
+    border: 1px dashed #1a4060;
+    color: #66aadd;
+    font-size: 8px;
+  }
+  .floor-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #8899bb;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  /* ===== RUN OF SHOW ===== */
+  .ros-item {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid #1a2240;
+    align-items: start;
+  }
+  .ros-item:last-child { border-bottom: none; }
+  .ros-time {
+    font-size: 13px;
+    font-weight: 800;
+    color: #C8A96A;
+    letter-spacing: 0.02em;
+    padding-top: 2px;
+  }
+  .ros-action {
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 3px;
+  }
+  .ros-detail {
+    font-size: 12px;
+    color: #8899bb;
+    line-height: 1.5;
+  }
+  .ros-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-bottom: 4px;
+  }
+  .ros-tag-kitchen { background: #1a2a0a; color: #88dd66; }
+  .ros-tag-bar { background: #1a0a2a; color: #aa88ff; }
+  .ros-tag-coord { background: #2a1a08; color: #C8A96A; }
+  .ros-tag-floor { background: #082a2a; color: #66dddd; }
+  .ros-tag-vendor { background: #08082a; color: #8888ff; }
+
+  /* ===== VENDOR TABLE ===== */
+  .vendor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 768px) { .vendor-grid { grid-template-columns: 1fr; } }
+  .vendor-card {
+    background: #111827;
+    border: 1px solid #1a2240;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .vendor-type {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #C8A96A;
+    margin-bottom: 6px;
+  }
+  .vendor-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+  }
+  .vendor-detail {
+    font-size: 12px;
+    color: #8899bb;
+    line-height: 1.5;
+  }
+
+  /* ===== PREP TIMELINE ===== */
+  .prep-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid #1a2240;
+  }
+  .prep-row:last-child { border-bottom: none; }
+  .prep-time {
+    font-size: 12px;
+    font-weight: 800;
+    color: #C8A96A;
+    min-width: 70px;
+    letter-spacing: 0.02em;
+  }
+  .prep-bar-wrap { flex: 1; }
+  .prep-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+  }
+  .prep-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #C8A96A, #e8c97a);
+  }
+  .prep-note {
+    font-size: 11px;
+    color: #8899bb;
+    margin-top: 3px;
+  }
+
+  /* ===== CONTACT CARD ===== */
+  .contact-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 600px) { .contact-pair { grid-template-columns: 1fr; } }
+  .contact-card {
+    background: #111827;
+    border: 1px solid #C8A96A30;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .contact-role {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #C8A96A;
+    margin-bottom: 6px;
+  }
+  .contact-name {
+    font-size: 18px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 8px;
+  }
+  .contact-phone {
+    font-size: 15px;
+    color: #C8A96A;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  /* ===== RESET LIST ===== */
+  .reset-list { list-style: none; counter-reset: reset-counter; }
+  .reset-list li {
+    counter-increment: reset-counter;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid #1a2240;
+    font-size: 13px;
+    color: #FFFFFF;
+    line-height: 1.5;
+  }
+  .reset-list li:last-child { border-bottom: none; }
+  .reset-num {
+    width: 24px;
+    height: 24px;
+    background: #C8A96A;
+    color: #0A0F1E;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  /* ===== PRINT ===== */
+  @media print {
+    body { background: #fff; color: #000; }
+    .app-header { position: relative; border-bottom: 2px solid #C8A96A; background: #0A0F1E; }
+    .nav-tabs { display: none; }
+    .tab-content { display: block !important; padding: 20px; }
+    .tab-content:not(.active) { border-top: 3px solid #C8A96A; margin-top: 24px; }
+    .card, .event-summary, .staff-card { background: #f8f8f8; border: 1px solid #ddd; }
+    .data-table td, .data-table th { color: #000; border-bottom: 1px solid #ccc; }
+  }
+
+  /* ===== INVENTORY TABLE EXTRAS ===== */
+  .qty-cell { font-weight: 800; color: #C8A96A; }
+  .note-cell { font-size: 11px; color: #8899bb; }
+
+  /* ===== DIVIDER ===== */
+  .spacer { height: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="app-header">
+  <div class="header-brand">
+    <div class="header-logo">The Z Hall</div>
+    <div class="header-divider"></div>
+    <div class="header-subtitle">Event Operations</div>
+  </div>
+  <div class="header-event">
+    <div class="header-event-name">Johnson-Mitchell Wedding</div>
+    <div class="header-event-date">Saturday, June 14, 2026</div>
+  </div>
+</header>
+
+<!-- ===== NAV TABS ===== -->
+<nav class="nav-tabs">
+  <div class="nav-tab active" onclick="switchTab('overview', this)">Overview</div>
+  <div class="nav-tab" onclick="switchTab('kitchen', this)">Kitchen</div>
+  <div class="nav-tab" onclick="switchTab('bar', this)">Bar</div>
+  <div class="nav-tab" onclick="switchTab('floor', this)">Floor / Service</div>
+  <div class="nav-tab" onclick="switchTab('coordinator', this)">Coordinator Notes</div>
+</nav>
+
+<!-- ===================================================================== -->
+<!-- TAB 1: OVERVIEW -->
+<!-- ===================================================================== -->
+<div id="tab-overview" class="tab-content active">
+
+  <!-- Event Summary Card -->
+  <div class="event-summary">
+    <div class="event-couple">Sarah Johnson <span>&amp;</span> Marcus Mitchell</div>
+    <div class="event-meta">The Johnson-Mitchell Wedding &nbsp;&bull;&nbsp; Saturday, June 14, 2026 &nbsp;&bull;&nbsp; Guest Count: 187</div>
+    <div class="event-stats">
+      <div class="stat-item">
+        <div class="stat-label">Ceremony</div>
+        <div class="stat-value">4:00 PM</div>
+        <div class="stat-sub">On-site</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Reception Opens</div>
+        <div class="stat-value">5:30 PM</div>
+        <div class="stat-sub">Bar opens / cocktail hour</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Dinner Service</div>
+        <div class="stat-value">6:30 PM</div>
+        <div class="stat-sub">Plated service begins</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Event End</div>
+        <div class="stat-value">10:00 PM</div>
+        <div class="stat-sub">Last call 9:30 PM</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's Timeline -->
+  <div class="section-heading">
+    <h2>Today's Timeline</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="card">
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="tl-time">1:00 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Florist Arrives</div>
+          <div class="tl-detail">Table centerpieces, floral arrangements, head table florals</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">2:00 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Cake Delivery -- Mimi's Bakery</div>
+          <div class="tl-detail">3-tier vanilla buttercream, serves 200. Kitchen receives and stages.</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">2:30 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">DJ Setup (North Corner)</div>
+          <div class="tl-detail">Coordinate with floor team on sound check clearance</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">3:00 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Photo Booth Arrives (East Corner)</div>
+          <div class="tl-detail">Confirm power access and floor space clearance</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">4:00 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot milestone"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Ceremony Begins</div>
+          <div class="tl-detail">All staff at stations. Bar prepped but not open. Kitchen on standby.</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">4:45 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Cocktail Hour Prep -- Kitchen</div>
+          <div class="tl-detail">Begin plating bruschetta, caprese skewers, and charcuterie boards for 5:30 PM service</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">5:30 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot milestone"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Reception Opens / Bar Opens</div>
+          <div class="tl-detail">Cocktail hour begins. Appetizers deployed. Bar open for full service. Photo booth live.</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">6:00 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Kitchen -- Dinner Prep Begin</div>
+          <div class="tl-detail">Chicken (est. 102) and filet (est. 85) staging. Sides begin. Rolls warm.</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">6:30 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot milestone"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Dinner Service Begins</div>
+          <div class="tl-detail">Plated dinner rollout. Allergy plates first (tables 3, 11, 17). Head table served first.</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">7:15 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot milestone"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Champagne Toast</div>
+          <div class="tl-detail">Bar team deploys 187 poured glasses. Coordinate with DJ for announcement cue.</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">8:00 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot milestone"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Cake Cutting</div>
+          <div class="tl-detail">Cora coordinates with couple. Kitchen stages cake for immediate service after cutting.</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">9:30 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Last Call</div>
+          <div class="tl-detail">Bar team announces last call. Begin bar breakdown after final orders.</div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-time">10:00 PM</div>
+        <div class="tl-icon-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div class="tl-body">
+          <div class="tl-title">Event Ends / Reset Begins</div>
+          <div class="tl-detail">Full reset required. Sunday private brunch at 10:00 AM. All staff to reset protocol.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Staff Roster -->
+  <div class="section-heading">
+    <h2>Staff Roster</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="staff-grid">
+    <div class="staff-card">
+      <div class="staff-name">Cora Marsh</div>
+      <div class="staff-role">Day-of Coordinator</div>
+      <div class="staff-dept">Floor</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">David</div>
+      <div class="staff-role">Kitchen Lead</div>
+      <div class="staff-dept">Kitchen</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Barb H.</div>
+      <div class="staff-role">Kitchen Support</div>
+      <div class="staff-dept">Kitchen</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Leo M.</div>
+      <div class="staff-role">Kitchen Support</div>
+      <div class="staff-dept">Kitchen</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Amanda B.</div>
+      <div class="staff-role">Bar Manager</div>
+      <div class="staff-dept">Bar</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Tyler R.</div>
+      <div class="staff-role">Bartender</div>
+      <div class="staff-dept">Bar</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Marcus K.</div>
+      <div class="staff-role">Service Lead</div>
+      <div class="staff-dept">Floor / Service</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Jordan T.</div>
+      <div class="staff-role">Server</div>
+      <div class="staff-dept">Floor / Service</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Priya S.</div>
+      <div class="staff-role">Server</div>
+      <div class="staff-dept">Floor / Service</div>
+    </div>
+  </div>
+
+  <!-- Key Alerts -->
+  <div class="section-heading">
+    <h2>Key Alerts</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="alert alert-danger">
+    <div class="alert-icon">&#9888;</div>
+    <div class="alert-text"><span class="alert-label">NUT ALLERGIES:</span> 3 guests with documented nut allergies. Seating chart marked. Tables 3, 11, and 17. No nut-containing garnishes or dishes served to those tables without explicit allergy-safe confirmation.</div>
+  </div>
+  <div class="alert alert-warning">
+    <div class="alert-icon">&#128293;</div>
+    <div class="alert-text"><span class="alert-label">NO OPEN FLAMES:</span> Bride requests flameless candles only throughout the venue. No exceptions. Verify all centerpieces with florist upon arrival.</div>
+  </div>
+  <div class="alert alert-info">
+    <div class="alert-icon">&#127806;</div>
+    <div class="alert-text"><span class="alert-label">VEGETARIAN:</span> 4 confirmed vegetarian guests. Vegetarian plated option available on request. Coordinate with kitchen to have 6 ready (buffer of 2).</div>
+  </div>
+  <div class="alert alert-success">
+    <div class="alert-icon">&#10003;</div>
+    <div class="alert-text"><span class="alert-label">POST-EVENT RESET:</span> Full venue reset required tonight. Sunday private brunch event begins at 10:00 AM. Reset must be complete before staff departs.</div>
+  </div>
+
+</div><!-- /tab-overview -->
+
+
+<!-- ===================================================================== -->
+<!-- TAB 2: KITCHEN -->
+<!-- ===================================================================== -->
+<div id="tab-kitchen" class="tab-content">
+
+  <div class="section-heading">
+    <h2>Kitchen Staff</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="staff-grid">
+    <div class="staff-card">
+      <div class="staff-name">David</div>
+      <div class="staff-role">Kitchen Lead</div>
+      <div class="staff-dept">Lead all kitchen operations</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Barb H.</div>
+      <div class="staff-role">Kitchen Support</div>
+      <div class="staff-dept">Prep, sides, plating assist</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Leo M.</div>
+      <div class="staff-role">Kitchen Support</div>
+      <div class="staff-dept">Prep, expo, dish rotation</div>
+    </div>
+  </div>
+
+  <!-- Vendor Arrivals -->
+  <div class="section-heading">
+    <h2>Vendor Arrivals</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="card">
+    <div class="alert alert-info" style="margin-bottom:0;">
+      <div class="alert-icon">&#127873;</div>
+      <div class="alert-text"><span class="alert-label">2:00 PM -- Mimi's Bakery:</span> 3-tier vanilla with buttercream wedding cake. Serves 200. Kitchen Lead receives delivery, confirm integrity, stage in designated area. Do NOT refrigerate. Cake cutting at 8:00 PM.</div>
+    </div>
+  </div>
+
+  <!-- Prep Timeline -->
+  <div class="section-heading">
+    <h2>Kitchen Prep Timeline</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="card">
+    <div class="prep-row">
+      <div class="prep-time">12:00 PM</div>
+      <div class="prep-bar-wrap">
+        <div class="prep-label">Kitchen opens / mise en place</div>
+        <div class="prep-bar" style="width:15%;"></div>
+        <div class="prep-note">All prep stations set. Inventory confirmed. Equipment verified.</div>
+      </div>
+    </div>
+    <div class="prep-row">
+      <div class="prep-time">1:00 PM</div>
+      <div class="prep-bar-wrap">
+        <div class="prep-label">Charcuterie board prep begins</div>
+        <div class="prep-bar" style="width:25%;"></div>
+        <div class="prep-note">4 boards for 187 guests. Assemble, wrap, refrigerate until 5:15 PM.</div>
+      </div>
+    </div>
+    <div class="prep-row">
+      <div class="prep-time">2:00 PM</div>
+      <div class="prep-bar-wrap">
+        <div class="prep-label">Receive cake delivery / stage</div>
+        <div class="prep-bar" style="width:10%;"></div>
+        <div class="prep-note">Inspect for damage. Confirm serving utensils. Do not refrigerate.</div>
+      </div>
+    </div>
+    <div class="prep-row">
+      <div class="prep-time">2:30 PM</div>
+      <div class="prep-bar-wrap">
+        <div class="prep-label">Dinner protein prep -- chicken &amp; filet</div>
+        <div class="prep-bar" style="width:40%;"></div>
+        <div class="prep-note">Herb-crusted chicken (est. 102). 8oz filet mignon (est. 85). Season, stage, refrigerate.</div>
+      </div>
+    </div>
+    <div class="prep-row">
+      <div class="prep-time">4:00 PM</div>
+      <div class="prep-bar-wrap">
+        <div class="prep-label">Ceremony hold -- kitchen on standby</div>
+        <div class="prep-bar" style="width:10%;"></div>
+        <div class="prep-note">Minimal activity. Stay ready. Do not begin cooking protein yet.</div>
+      </div>
+    </div>
+    <div class="prep-row">
+      <div class="prep-time">4:45 PM</div>
+      <div class="prep-bar-wrap">
+        <div class="prep-label">Appetizer plating -- cocktail hour</div>
+        <div class="prep-bar" style="width:30%;"></div>
+        <div class="prep-note">Bruschetta, Caprese skewers, Charcuterie boards ready for 5:30 PM deployment.</div>
+      </div>
+    </div>
+    <div class="prep-row">
+      <div class="prep-time">6:00 PM</div>
+      <div class="prep-bar-wrap">
+        <div class="prep-label">Dinner cook begins -- protein to fire</div>
+        <div class="prep-bar" style="width:60%;"></div>
+        <div class="prep-note">Chicken and filet to heat. Mashed potatoes and vegetables begin. Rolls to warm.</div>
+      </div>
+    </div>
+    <div class="prep-row">
+      <div class="prep-time">6:20 PM</div>
+      <div class="prep-bar-wrap">
+        <div class="prep-label">Allergy plates first</div>
+        <div class="prep-bar" style="width:20%;"></div>
+        <div class="prep-note">Flag and plate 3 allergy-safe dinners before general plating. Deliver separately.</div>
+      </div>
+    </div>
+    <div class="prep-row">
+      <div class="prep-time">6:30 PM</div>
+      <div class="prep-bar-wrap">
+        <div class="prep-label">Dinner service rollout</div>
+        <div class="prep-bar" style="width:80%;"></div>
+        <div class="prep-note">Head table first. Coordinate plating speed with service team. Expo active.</div>
+      </div>
+    </div>
+    <div class="prep-row">
+      <div class="prep-time">7:50 PM</div>
+      <div class="prep-bar-wrap">
+        <div class="prep-label">Stage cake for cutting</div>
+        <div class="prep-bar" style="width:15%;"></div>
+        <div class="prep-note">Move cake to cake table. Plates and forks ready. 8:00 PM cutting.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Menu -->
+  <div class="section-heading">
+    <h2>Full Menu with Quantities</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cocktail Hour Appetizers (5:30 -- 6:30 PM)</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Bruschetta</td>
+          <td class="qty-cell">187 portions</td>
+          <td class="note-cell">Passed appetizer. Allergy-safe base. No nut-based toppings.</td>
+        </tr>
+        <tr>
+          <td>Caprese Skewers</td>
+          <td class="qty-cell">187 portions</td>
+          <td class="note-cell">Fresh mozzarella, tomato, basil, balsamic drizzle</td>
+        </tr>
+        <tr>
+          <td>Charcuterie Boards</td>
+          <td class="qty-cell">4 boards</td>
+          <td class="note-cell">For 187 guests. Station service.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Plated Dinner (6:30 PM)</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Estimated Count</th>
+          <th>Flags</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Herb-Crusted Chicken</td>
+          <td class="qty-cell">102</td>
+          <td><span class="badge badge-gold">Entree A</span></td>
+        </tr>
+        <tr>
+          <td>8oz Filet Mignon</td>
+          <td class="qty-cell">85</td>
+          <td><span class="badge badge-gold">Entree B</span></td>
+        </tr>
+        <tr>
+          <td>Vegetarian Plate</td>
+          <td class="qty-cell">4 confirmed (6 prepped)</td>
+          <td><span class="badge badge-green">Veg</span></td>
+        </tr>
+        <tr>
+          <td>Roasted Garlic Mashed Potatoes</td>
+          <td class="qty-cell">187 portions</td>
+          <td><span class="badge badge-gray">Side</span></td>
+        </tr>
+        <tr>
+          <td>Seasonal Roasted Vegetables</td>
+          <td class="qty-cell">187 portions</td>
+          <td><span class="badge badge-gray">Side</span></td>
+        </tr>
+        <tr>
+          <td>Dinner Rolls</td>
+          <td class="qty-cell">220 (buffer)</td>
+          <td><span class="badge badge-gray">Side</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Wedding Cake (8:00 PM)</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>3-Tier Vanilla Buttercream Cake</td>
+          <td class="qty-cell">Serves 200</td>
+          <td class="note-cell">Provided by Mimi's Bakery. Arrives 2:00 PM. Do not refrigerate.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Allergy Flags -->
+  <div class="alert alert-danger">
+    <div class="alert-icon">&#9888;</div>
+    <div class="alert-text">
+      <span class="alert-label">ALLERGY ALERT -- NUT ALLERGIES:</span> 3 guests at Tables 3, 11, and 17. Their plates must be prepared in a nut-free zone, using separate utensils and preparation surfaces. Flag plates before expo. No nut-containing items delivered to those tables under any circumstances. Confirm with service lead before delivery.
+    </div>
+  </div>
+
+</div><!-- /tab-kitchen -->
+
+
+<!-- ===================================================================== -->
+<!-- TAB 3: BAR -->
+<!-- ===================================================================== -->
+<div id="tab-bar" class="tab-content">
+
+  <div class="section-heading">
+    <h2>Bar Staff</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="staff-grid">
+    <div class="staff-card">
+      <div class="staff-name">Amanda B.</div>
+      <div class="staff-role">Bar Manager</div>
+      <div class="staff-dept">Bar operations lead, inventory, champagne toast</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Tyler R.</div>
+      <div class="staff-role">Bartender</div>
+      <div class="staff-dept">Service, specialty cocktails, support</div>
+    </div>
+  </div>
+
+  <!-- Key Alerts -->
+  <div class="section-heading">
+    <h2>Bar Alerts</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="alert alert-danger">
+    <div class="alert-icon">&#9203;</div>
+    <div class="alert-text"><span class="alert-label">LAST CALL: 9:30 PM.</span> Announce verbally and coordinate with DJ for reminder at 9:25 PM. Bar closes at 9:45 PM. Event ends 10:00 PM.</div>
+  </div>
+  <div class="alert alert-warning">
+    <div class="alert-icon">&#127870;</div>
+    <div class="alert-text"><span class="alert-label">CHAMPAGNE TOAST: 7:15 PM.</span> 187 glasses must be poured and staged before DJ announces toast. Coordinate with Cora and DJ for timing cue. Begin pouring at 7:00 PM.</div>
+  </div>
+
+  <!-- Bar Setup Checklist -->
+  <div class="section-heading">
+    <h2>Bar Setup Checklist</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="card">
+    <ul class="checklist">
+      <li><div class="check-box"></div><div><div>Full bar station set by 5:00 PM</div><div class="check-sub">Bottles staged, garnishes prepped, glassware polished</div></div></li>
+      <li><div class="check-box"></div><div><div>Ice confirmed and stocked</div><div class="check-sub">Main service ice + dedicated champagne toast ice bath</div></div></li>
+      <li><div class="check-box"></div><div><div>Specialty cocktail ingredients prepped</div><div class="check-sub">Elderflower gin, prosecco, cucumber sliced, garnishes ready</div></div></li>
+      <li><div class="check-box"></div><div><div>Beer kegs or bottles stocked and chilled</div><div class="check-sub">Bell's Two Hearted, Founders All Day IPA, Miller Lite, Bud Light</div></div></li>
+      <li><div class="check-box"></div><div><div>Wine bottles opened / ready to pour</div><div class="check-sub">Meiomi Pinot Noir, Kim Crawford Sauvignon Blanc, La Marca Prosecco</div></div></li>
+      <li><div class="check-box"></div><div><div>187 champagne flutes staged and clean</div><div class="check-sub">Staged on trays near bar, ready for 7:00 PM pour</div></div></li>
+      <li><div class="check-box"></div><div><div>Signage displayed (drink menu, specialty cocktail)</div><div class="check-sub">Z Hall Signature featured prominently</div></div></li>
+      <li><div class="check-box"></div><div><div>Backup glassware accessible</div><div class="check-sub">Confirm location with floor lead</div></div></li>
+      <li><div class="check-box"></div><div><div>Waste bins and drain buckets in place</div><div class="check-sub">Out of guest sight lines</div></div></li>
+      <li><div class="check-box"></div><div><div>Bar area clean and guest-ready by 5:25 PM</div><div class="check-sub">Final walkthrough before bar opens at 5:30 PM</div></div></li>
+    </ul>
+  </div>
+
+  <!-- Specialty Cocktail -->
+  <div class="section-heading">
+    <h2>Specialty Cocktail</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="recipe-card">
+    <div class="recipe-name">The Z Hall Signature</div>
+    <div class="recipe-tagline">Featured cocktail for the Johnson-Mitchell Wedding</div>
+    <ul class="recipe-ingredients">
+      <li><span class="ri-qty">1.5 oz</span><span class="ri-item">Elderflower gin</span></li>
+      <li><span class="ri-qty">3 oz</span><span class="ri-item">Prosecco (chilled)</span></li>
+      <li><span class="ri-qty">3 slices</span><span class="ri-item">Fresh cucumber (muddled)</span></li>
+      <li><span class="ri-qty">0.5 oz</span><span class="ri-item">Simple syrup</span></li>
+      <li><span class="ri-qty">Garnish</span><span class="ri-item">Cucumber ribbon + edible flower</span></li>
+    </ul>
+    <div class="recipe-method">
+      <strong>Method:</strong> Muddle cucumber in shaker. Add gin and simple syrup with ice. Shake briefly. Strain into chilled flute or coupe. Top with chilled prosecco. Do not shake prosecco. Garnish with cucumber ribbon. Serve immediately.
+    </div>
+  </div>
+
+  <!-- Full Bar Inventory -->
+  <div class="section-heading">
+    <h2>Full Bar Inventory</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Beer</div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Product</th><th>Type</th><th>Quantity</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Bell's Two Hearted Ale</td><td><span class="badge badge-gold">Craft</span></td><td class="qty-cell">4 cases</td></tr>
+        <tr><td>Founders All Day IPA</td><td><span class="badge badge-gold">Craft</span></td><td class="qty-cell">4 cases</td></tr>
+        <tr><td>Miller Lite</td><td><span class="badge badge-gray">Light</span></td><td class="qty-cell">3 cases</td></tr>
+        <tr><td>Bud Light</td><td><span class="badge badge-gray">Light</span></td><td class="qty-cell">3 cases</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Wine</div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Product</th><th>Varietal</th><th>Quantity</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Meiomi Pinot Noir</td><td>Red</td><td class="qty-cell">12 bottles</td></tr>
+        <tr><td>Kim Crawford Sauvignon Blanc</td><td>White</td><td class="qty-cell">12 bottles</td></tr>
+        <tr><td>La Marca Prosecco</td><td>Sparkling</td><td class="qty-cell">8 bottles (table service)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Champagne Toast -- 7:15 PM</div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Item</th><th>Quantity</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Champagne / Sparkling Wine</td>
+          <td class="qty-cell">187 glasses</td>
+          <td class="note-cell">Begin pouring at 7:00 PM. Stage on trays. Do not pour more than 15 min ahead. Coordinate with DJ for announcement cue.</td>
+        </tr>
+        <tr>
+          <td>Non-alcoholic alternative</td>
+          <td class="qty-cell">15 glasses sparkling cider</td>
+          <td class="note-cell">Available on request. Distribute with same pour timing.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Spirits / Liquor (Full Open Bar)</div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Spirit</th><th>Quantity</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Elderflower Gin (specialty cocktail)</td><td class="qty-cell">4 bottles</td></tr>
+        <tr><td>Vodka (well + premium)</td><td class="qty-cell">4 bottles</td></tr>
+        <tr><td>Whiskey / Bourbon</td><td class="qty-cell">3 bottles</td></tr>
+        <tr><td>Rum</td><td class="qty-cell">2 bottles</td></tr>
+        <tr><td>Tequila</td><td class="qty-cell">2 bottles</td></tr>
+        <tr><td>Simple Syrup</td><td class="qty-cell">2 liters</td></tr>
+        <tr><td>Mixers (tonic, soda, OJ, cranberry)</td><td class="qty-cell">Full stock</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div><!-- /tab-bar -->
+
+
+<!-- ===================================================================== -->
+<!-- TAB 4: FLOOR / SERVICE -->
+<!-- ===================================================================== -->
+<div id="tab-floor" class="tab-content">
+
+  <div class="section-heading">
+    <h2>Service Staff</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="staff-grid">
+    <div class="staff-card">
+      <div class="staff-name">Marcus K.</div>
+      <div class="staff-role">Service Lead</div>
+      <div class="staff-dept">Floor coordination, expo liaison</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Jordan T.</div>
+      <div class="staff-role">Server</div>
+      <div class="staff-dept">Table sections assigned by Marcus K.</div>
+    </div>
+    <div class="staff-card">
+      <div class="staff-name">Priya S.</div>
+      <div class="staff-role">Server</div>
+      <div class="staff-dept">Table sections assigned by Marcus K.</div>
+    </div>
+  </div>
+
+  <!-- Allergy Alert -->
+  <div class="alert alert-danger" style="margin-top:24px;">
+    <div class="alert-icon">&#9888;</div>
+    <div class="alert-text">
+      <span class="alert-label">NUT ALLERGY TABLES:</span> Tables 3, 11, and 17. Allergy plates delivered first, separately identified. No nut-containing items -- including certain garnishes -- delivered to these tables. Confirm each plate at expo before delivery.
+    </div>
+  </div>
+
+  <!-- Table Layout -->
+  <div class="section-heading">
+    <h2>Table Layout</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Room Configuration</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Table Type</th><th>Count</th><th>Seats</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Guest Tables (standard)</td><td class="qty-cell">17</td><td>8 per table (136 guests)</td></tr>
+          <tr><td>Guest Table (short)</td><td class="qty-cell">1</td><td>7 guests</td></tr>
+          <tr><td>Head Table</td><td class="qty-cell">1</td><td>8 (B, G, 3 bridesmaids, 3 groomsmen)</td></tr>
+          <tr><td>Sweetheart Table</td><td class="qty-cell">1</td><td>2 (couple, alternative)</td></tr>
+          <tr><td><strong>Total Seated</strong></td><td class="qty-cell"><strong>20 tables</strong></td><td><strong>187 guests</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Special Positions</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Feature</th><th>Location</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Photo Booth</td><td>East Corner</td><td>Arrives 3:00 PM. Active from 5:30 PM.</td></tr>
+          <tr><td>DJ Setup</td><td>North Corner</td><td>Arrives 2:30 PM. Sound check before ceremony.</td></tr>
+          <tr><td>Head Table</td><td>Front of room</td><td>Served first at dinner. Florals and priority service.</td></tr>
+          <tr><td>Sweetheart Table</td><td>Center front</td><td>Couple only. Premium setup, florals.</td></tr>
+          <tr><td>Cake Table</td><td>Designated area</td><td>Cake staged at 7:50 PM for 8:00 PM cutting.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Floor Map Visual -->
+  <div class="floor-map" style="margin-bottom:16px;">
+    <div class="floor-map-title">Room Diagram -- Z Hall (Representative)</div>
+    <div class="floor-diagram">
+      <!-- Row 1: Special positions -->
+      <div class="table-icon special" style="grid-column:1;grid-row:1;">DJ<br>North</div>
+      <div class="table-icon head-table" style="grid-column:2/span 3;grid-row:1;">Head Table (8)<br>Bride &amp; Groom + Wedding Party</div>
+      <div class="table-icon special" style="grid-column:5;grid-row:1;">Photo<br>Booth<br>East</div>
+      <div class="table-icon sweet-table" style="grid-column:6;grid-row:1;">Sweet<br>Heart<br>(2)</div>
+      <!-- Row 2 -->
+      <div class="table-icon allergy-table">T3<br>ALLERGY</div>
+      <div class="table-icon guest-table">T1<br>(8)</div>
+      <div class="table-icon guest-table">T2<br>(8)</div>
+      <div class="table-icon guest-table">T4<br>(8)</div>
+      <div class="table-icon guest-table">T5<br>(8)</div>
+      <div class="table-icon guest-table">T6<br>(8)</div>
+      <!-- Row 3 -->
+      <div class="table-icon guest-table">T7<br>(8)</div>
+      <div class="table-icon guest-table">T8<br>(8)</div>
+      <div class="table-icon guest-table">T9<br>(8)</div>
+      <div class="table-icon guest-table">T10<br>(8)</div>
+      <div class="table-icon allergy-table">T11<br>ALLERGY</div>
+      <div class="table-icon guest-table">T12<br>(8)</div>
+      <!-- Row 4 -->
+      <div class="table-icon guest-table">T13<br>(8)</div>
+      <div class="table-icon guest-table">T14<br>(8)</div>
+      <div class="table-icon guest-table">T15<br>(8)</div>
+      <div class="table-icon guest-table">T16<br>(8)</div>
+      <div class="table-icon allergy-table">T17<br>ALLERGY</div>
+      <div class="table-icon guest-table">T18<br>(7)</div>
+    </div>
+    <div class="floor-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#1a2240;border:1px solid #2a3450;"></div>Guest Table</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2d1010;border:1px solid #7a2020;"></div>Nut Allergy Table</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3a2a08;border:1px solid #7a5520;"></div>Head Table</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#0a2d1a;border:1px solid #1a6040;"></div>Sweetheart Table</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#0a1a2d;border:1px dashed #1a4060;"></div>Vendor / Special</div>
+    </div>
+  </div>
+
+  <!-- Service Timeline -->
+  <div class="section-heading">
+    <h2>Service Timeline</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="card">
+    <table class="data-table">
+      <thead>
+        <tr><th>Time</th><th>Service Action</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>5:30 PM</td>
+          <td>Cocktail hour begins</td>
+          <td class="note-cell">Deploy bruschetta, caprese skewers. Station charcuterie boards. Bar open.</td>
+        </tr>
+        <tr>
+          <td>6:00 PM</td>
+          <td>Clear cocktail stations</td>
+          <td class="note-cell">Begin transitioning room for plated dinner. Confirm water poured at all tables.</td>
+        </tr>
+        <tr>
+          <td>6:30 PM</td>
+          <td>Dinner service begins</td>
+          <td class="note-cell">Head table first. Allergy plates identified. Coordinate with expo on fire times.</td>
+        </tr>
+        <tr>
+          <td>7:00 PM</td>
+          <td>Bar team begins champagne pour</td>
+          <td class="note-cell">Service team assists if needed. 187 glasses on trays staged for toast.</td>
+        </tr>
+        <tr>
+          <td>7:15 PM</td>
+          <td>Champagne toast</td>
+          <td class="note-cell">DJ cues couple. Service team distributes glasses to all tables simultaneously.</td>
+        </tr>
+        <tr>
+          <td>7:50 PM</td>
+          <td>Stage cake table</td>
+          <td class="note-cell">Move cake to cutting area. Plates, forks, and cake server in place.</td>
+        </tr>
+        <tr>
+          <td>8:00 PM</td>
+          <td>Cake cutting ceremony</td>
+          <td class="note-cell">Cora coordinates with couple. Service team begins slicing and plating immediately after cutting.</td>
+        </tr>
+        <tr>
+          <td>8:15 PM</td>
+          <td>Cake service to all tables</td>
+          <td class="note-cell">All 187 guests. One slice each. Confirm allergies (cake is nut-free per Mimi's Bakery).</td>
+        </tr>
+        <tr>
+          <td>9:30 PM</td>
+          <td>Last call announced</td>
+          <td class="note-cell">Begin clearing non-essential items from tables. Prepare for close-out.</td>
+        </tr>
+        <tr>
+          <td>10:00 PM</td>
+          <td>Event ends / reset begins</td>
+          <td class="note-cell">All staff to reset protocol. Full reset by 10:00 AM Sunday.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Setup Notes -->
+  <div class="section-heading">
+    <h2>Setup Notes</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="alert alert-warning">
+    <div class="alert-icon">&#128293;</div>
+    <div class="alert-text"><span class="alert-label">FLAMELESS CANDLES ONLY.</span> Bride's explicit request. Verify all centerpiece candles are flameless with florist upon arrival at 1:00 PM. No real candles or open flames anywhere in venue.</div>
+  </div>
+  <div class="alert alert-info">
+    <div class="alert-icon">&#128247;</div>
+    <div class="alert-text"><span class="alert-label">PHOTO BOOTH:</span> East corner. Arrives 3:00 PM. Confirm power access and clear 8x8 ft footprint before florist completes. Active from 5:30 PM through 9:30 PM.</div>
+  </div>
+  <div class="alert alert-info">
+    <div class="alert-icon">&#127926;</div>
+    <div class="alert-text"><span class="alert-label">DJ SETUP:</span> North corner. Arrives 2:30 PM. Coordinate on sound check window -- must complete before 3:45 PM (before ceremony). Cora holds DJ coordination.</div>
+  </div>
+
+</div><!-- /tab-floor -->
+
+
+<!-- ===================================================================== -->
+<!-- TAB 5: COORDINATOR NOTES -->
+<!-- ===================================================================== -->
+<div id="tab-coordinator" class="tab-content">
+
+  <!-- Couple Contacts -->
+  <div class="section-heading">
+    <h2>Couple Contacts</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="contact-pair">
+    <div class="contact-card">
+      <div class="contact-role">Bride</div>
+      <div class="contact-name">Sarah Johnson</div>
+      <div class="contact-phone">989-555-0142</div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-role">Groom</div>
+      <div class="contact-name">Marcus Mitchell</div>
+      <div class="contact-phone">989-555-0198</div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:24px;">
+    <div class="card-title">Day-of Coordinator</div>
+    <div style="display:flex;align-items:center;gap:20px;">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:#FFFFFF;">Cora Marsh</div>
+        <div style="font-size:12px;color:#8899bb;margin-top:4px;">Primary point of contact for all vendor coordination, couple requests, and event execution. Floor authority all evening.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor Contacts -->
+  <div class="section-heading">
+    <h2>Vendor Contacts</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="vendor-grid">
+    <div class="vendor-card">
+      <div class="vendor-type">Florist</div>
+      <div class="vendor-name">TBD Florals</div>
+      <div class="vendor-detail">Arrival: 1:00 PM<br>Deliverables: Centerpieces (20 tables), head table florals, sweetheart table, ceremony arch<br>Confirm: All candles are flameless before placement</div>
+    </div>
+    <div class="vendor-card">
+      <div class="vendor-type">DJ</div>
+      <div class="vendor-name">DJ (North Corner)</div>
+      <div class="vendor-detail">Arrival: 2:30 PM<br>Sound check: by 3:45 PM<br>Cue points: 5:30 PM intro, 7:15 PM toast announcement, 8:00 PM cake cutting, 9:30 PM last song</div>
+    </div>
+    <div class="vendor-card">
+      <div class="vendor-type">Bakery</div>
+      <div class="vendor-name">Mimi's Bakery</div>
+      <div class="vendor-detail">Delivery: 2:00 PM<br>Item: 3-tier vanilla buttercream cake, serves 200<br>Cake is nut-free per vendor. Kitchen Lead receives delivery.<br>Do not refrigerate.</div>
+    </div>
+    <div class="vendor-card">
+      <div class="vendor-type">Photo Booth</div>
+      <div class="vendor-name">Photo Booth Vendor</div>
+      <div class="vendor-detail">Arrival: 3:00 PM<br>Location: East corner<br>Power: Confirm access on arrival<br>Active: 5:30 PM -- 9:30 PM</div>
+    </div>
+  </div>
+
+  <!-- Full Run of Show -->
+  <div class="section-heading">
+    <h2>Full Run of Show</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="card">
+    <div class="ros-item">
+      <div class="ros-time">12:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-kitchen">Kitchen</div>
+        <div class="ros-action">Kitchen Opens</div>
+        <div class="ros-detail">All kitchen staff on site. Inventory check. Equipment verified. Mise en place begins.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">1:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-vendor">Vendor</div>
+        <div class="ros-action">Florist Arrives</div>
+        <div class="ros-detail">Cora greets florist. Confirm flameless candles before any placement. Direct to tables per layout plan.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">1:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-kitchen">Kitchen</div>
+        <div class="ros-action">Charcuterie board prep begins</div>
+        <div class="ros-detail">4 boards assembled for 187 guests. Wrap and refrigerate until 5:15 PM deploy.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">2:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-vendor">Vendor</div>
+        <div class="ros-action">Mimi's Bakery -- Cake Delivery</div>
+        <div class="ros-detail">David receives cake. Inspect for damage. Stage in designated area. Do not refrigerate. Confirm serving utensils.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">2:30 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-vendor">Vendor</div>
+        <div class="ros-action">DJ Arrives -- North Corner</div>
+        <div class="ros-detail">Marcus K. coordinates floor space clearance. Sound check window: 2:30 -- 3:45 PM.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">2:30 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-kitchen">Kitchen</div>
+        <div class="ros-action">Protein prep begins</div>
+        <div class="ros-detail">Herb-crusted chicken (102) and 8oz filet mignon (85) seasoned, staged, refrigerated.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">3:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-vendor">Vendor</div>
+        <div class="ros-action">Photo Booth Arrives -- East Corner</div>
+        <div class="ros-detail">Cora confirms power access. Marcus K. clears footprint. Active at 5:30 PM.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">3:30 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-bar">Bar</div>
+        <div class="ros-action">Bar full setup begins</div>
+        <div class="ros-detail">Amanda B. and Tyler R. complete full bar setup. Specialty cocktail ingredients prepped. Glassware polished.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">3:45 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-coord">Coordinator</div>
+        <div class="ros-action">All-staff check-in with Cora</div>
+        <div class="ros-detail">Quick walkthrough. Confirm stations ready. Confirm allergy tables identified. Confirm flameless candles.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">4:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-coord">Coordinator</div>
+        <div class="ros-action">Ceremony Begins</div>
+        <div class="ros-detail">All staff at stations. Bar prepped but not open. Kitchen on standby. No guest movement in main hall.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">4:45 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-kitchen">Kitchen</div>
+        <div class="ros-action">Appetizer plating for cocktail hour</div>
+        <div class="ros-detail">Bruschetta, caprese skewers, charcuterie boards all plated and staged for 5:30 PM deploy.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">5:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-bar">Bar</div>
+        <div class="ros-action">Bar final check -- ready by 5:25 PM</div>
+        <div class="ros-detail">Amanda B. confirms all inventory, ice, glassware in place. Final walkthrough.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">5:30 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-coord">Coordinator</div>
+        <div class="ros-action">Reception opens / Bar opens</div>
+        <div class="ros-detail">Cora signals DJ for intro. Appetizers deployed. Bar opens. Photo booth active. Cocktail hour begins.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">6:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-floor">Floor</div>
+        <div class="ros-action">Cocktail stations cleared / room transition</div>
+        <div class="ros-detail">Marcus K. leads transition. Water poured at all tables. Dinner service prep begins on floor.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">6:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-kitchen">Kitchen</div>
+        <div class="ros-action">Dinner proteins to fire</div>
+        <div class="ros-detail">Chicken and filet begin. Mashed potatoes, vegetables, rolls warming. Allergy plates prep first.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">6:20 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-kitchen">Kitchen</div>
+        <div class="ros-action">Allergy plates finalized at expo</div>
+        <div class="ros-detail">3 allergy-safe plates flagged and ready. Tables 3, 11, 17. Jordan or Priya delivers these first with Marcus K. confirmation.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">6:30 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-floor">Floor</div>
+        <div class="ros-action">Dinner service begins</div>
+        <div class="ros-detail">Head table served first. General service follows by section. Cora monitors pace.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">7:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-bar">Bar</div>
+        <div class="ros-action">Champagne pour begins</div>
+        <div class="ros-detail">Amanda B. and Tyler R. pour 187 champagne glasses. Stage on trays. Sparkling cider alternative available (15 glasses).</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">7:10 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-coord">Coordinator</div>
+        <div class="ros-action">Coordinate toast with DJ</div>
+        <div class="ros-detail">Cora confirms with DJ and best man/maid of honor. Toast glasses distributed to tables simultaneously at 7:15.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">7:15 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-coord">Coordinator</div>
+        <div class="ros-action">Champagne Toast</div>
+        <div class="ros-detail">DJ announces. Service team delivers glasses to all 20 tables simultaneously. Toast conducted.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">7:50 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-floor">Floor</div>
+        <div class="ros-action">Stage cake for cutting</div>
+        <div class="ros-detail">Move cake to cutting table. Plates, forks, and cake server in position. Cora confirms with couple.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">8:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-coord">Coordinator</div>
+        <div class="ros-action">Cake Cutting</div>
+        <div class="ros-detail">DJ cues music. Couple cuts cake. Photography. Kitchen immediately begins slicing and plating all 187 portions.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">8:15 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-floor">Floor</div>
+        <div class="ros-action">Cake service to all tables</div>
+        <div class="ros-detail">Service team delivers cake to all guests. Nut-free confirmed per Mimi's Bakery. All 187 served.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">9:25 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-coord">Coordinator</div>
+        <div class="ros-action">Cue DJ for last call reminder</div>
+        <div class="ros-detail">DJ announces last call at 9:30. Bar team prepares for wind-down.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">9:30 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-bar">Bar</div>
+        <div class="ros-action">Last Call</div>
+        <div class="ros-detail">Bar takes final orders. Begin bar breakdown after last drinks poured. Bar closes 9:45 PM.</div>
+      </div>
+    </div>
+    <div class="ros-item">
+      <div class="ros-time">10:00 PM</div>
+      <div>
+        <div class="ros-tag ros-tag-coord">Coordinator</div>
+        <div class="ros-action">Event Ends</div>
+        <div class="ros-detail">DJ plays final song. Cora thanks couple. Guest departure. All staff begin reset protocol immediately.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post-Event Reset -->
+  <div class="section-heading">
+    <h2>Post-Event Reset Instructions</h2>
+    <div class="section-heading-line"></div>
+  </div>
+  <div class="alert alert-warning" style="margin-bottom:16px;">
+    <div class="alert-icon">&#9201;</div>
+    <div class="alert-text"><span class="alert-label">DEADLINE: Sunday private brunch begins at 10:00 AM.</span> Full reset must be complete and venue ready before staff departs for the evening.</div>
+  </div>
+  <div class="card">
+    <ol class="reset-list">
+      <li><div class="reset-num">1</div><div>Clear all guest tables. Remove linens, centerpieces, tableware, and glassware. Return to kitchen/staging.</div></li>
+      <li><div class="reset-num">2</div><div>Break down all 20 tables (guest, head, sweetheart, cake table). Stack or move per venue standard.</div></li>
+      <li><div class="reset-num">3</div><div>Remove all chairs. Stack per venue protocol. Clear floor completely.</div></li>
+      <li><div class="reset-num">4</div><div>Bar breakdown. Secure remaining alcohol per inventory log. Clean bar area. Return all glassware.</div></li>
+      <li><div class="reset-num">5</div><div>Kitchen clean and sanitize. All surfaces wiped. Equipment cleaned and stored. Waste removed.</div></li>
+      <li><div class="reset-num">6</div><div>Sweep and mop all floors throughout the venue.</div></li>
+      <li><div class="reset-num">7</div><div>Remove all floral arrangements. Coordinate with florist for any rental pickup.</div></li>
+      <li><div class="reset-num">8</div><div>Reset room configuration per Sunday brunch floor plan (if available). Cora holds brunch layout.</div></li>
+      <li><div class="reset-num">9</div><div>Final walk-through with Cora. Confirm venue is clean, reset, and ready. No items left from wedding event.</div></li>
+      <li><div class="reset-num">10</div><div>Cora locks up and confirms all staff out. Document any issues or damage in the coordinator log.</div></li>
+    </ol>
+  </div>
+
+</div><!-- /tab-coordinator -->
+
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+  function switchTab(tabId, clickedEl) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(function(el) {
+      el.classList.remove('active');
+    });
+    // Deactivate all nav tabs
+    document.querySelectorAll('.nav-tab').forEach(function(el) {
+      el.classList.remove('active');
+    });
+    // Show selected tab content
+    document.getElementById('tab-' + tabId).classList.add('active');
+    // Activate clicked nav tab
+    clickedEl.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
