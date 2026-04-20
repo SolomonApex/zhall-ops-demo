@@ -609,6 +609,36 @@
     margin-top: 3px;
   }
 
+
+  /* ===== RECIPE CARDS ===== */
+  .prep-row { cursor: default; }
+  .prep-row.has-recipe { cursor: pointer; }
+  .prep-row.has-recipe:hover .prep-label { color: #C8A96A; }
+  .recipe-toggle { font-size: 10px; color: #C8A96A; margin-left: 8px; font-family: Arial, sans-serif; letter-spacing: 0.05em; }
+  .recipe-card {
+    display: none;
+    background: #0d1526;
+    border: 1px solid #C8A96A33;
+    border-radius: 6px;
+    padding: 16px 18px;
+    margin-top: 10px;
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+  }
+  .recipe-card.open { display: block; }
+  .recipe-card h4 {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #C8A96A;
+    margin-bottom: 10px;
+  }
+  .recipe-table { width: 100%; border-collapse: collapse; }
+  .recipe-table th { text-align: left; color: #8899bb; font-weight: 600; padding: 4px 8px; font-size: 11px; border-bottom: 1px solid #1e2a3a; }
+  .recipe-table td { padding: 5px 8px; color: #cdd5e0; border-bottom: 1px solid #111827; font-size: 12px; }
+  .recipe-table tr:last-child td { border-bottom: none; }
+  .recipe-note { margin-top: 10px; padding: 8px 10px; background: #111827; border-left: 2px solid #C8A96A; font-size: 11px; color: #8899bb; border-radius: 2px; }
+
   /* ===== CONTACT CARD ===== */
   .contact-pair {
     display: grid;
@@ -1065,12 +1095,37 @@
         <div class="prep-note">Inspect for damage. Confirm serving utensils. Do not refrigerate.</div>
       </div>
     </div>
-    <div class="prep-row">
+    <div class="prep-row has-recipe" onclick="toggleRecipe('recipe-protein')">
       <div class="prep-time">2:30 PM</div>
       <div class="prep-bar-wrap">
-        <div class="prep-label">Dinner protein prep -- chicken &amp; filet</div>
+        <div class="prep-label">Dinner protein prep -- chicken &amp; filet <span class="recipe-toggle">▼ VIEW RECIPES</span></div>
         <div class="prep-bar" data-start="14:30" data-end="16:00" style="width:2%;"></div>
         <div class="prep-note">Herb-crusted chicken (est. 102). 8oz filet mignon (est. 85). Season, stage, refrigerate.</div>
+        <div class="recipe-card" id="recipe-protein">
+          <h4>Herb-Crusted Chicken &mdash; 102 portions</h4>
+          <table class="recipe-table">
+            <tr><th>Ingredient</th><th>Per Portion</th><th>Total (102)</th></tr>
+            <tr><td>Chicken breast (6oz)</td><td>6 oz</td><td>38.25 lbs</td></tr>
+            <tr><td>Olive oil</td><td>1 tsp</td><td>1.06 cups</td></tr>
+            <tr><td>Garlic, minced</td><td>0.5 tsp</td><td>3.2 tbsp</td></tr>
+            <tr><td>Fresh rosemary</td><td>0.5 tsp</td><td>3.2 tbsp</td></tr>
+            <tr><td>Fresh thyme</td><td>0.5 tsp</td><td>3.2 tbsp</td></tr>
+            <tr><td>Salt &amp; pepper</td><td>to taste</td><td>to taste</td></tr>
+            <tr><td>Lemon zest</td><td>0.25 tsp</td><td>1.6 tbsp</td></tr>
+          </table>
+          <div class="recipe-note">Coat evenly. Stage on sheet pans. Refrigerate until 6:00 PM. Roast at 375&deg;F for 22-25 min internal 165&deg;F.</div>
+          <h4 style="margin-top: 14px;">8oz Filet Mignon &mdash; 85 portions</h4>
+          <table class="recipe-table">
+            <tr><th>Ingredient</th><th>Per Portion</th><th>Total (85)</th></tr>
+            <tr><td>Filet mignon (8oz)</td><td>8 oz</td><td>42.5 lbs</td></tr>
+            <tr><td>Butter</td><td>0.5 tbsp</td><td>2.66 cups</td></tr>
+            <tr><td>Garlic cloves</td><td>0.5 clove</td><td>43 cloves</td></tr>
+            <tr><td>Fresh thyme</td><td>1 sprig</td><td>85 sprigs</td></tr>
+            <tr><td>Kosher salt</td><td>0.5 tsp</td><td>2.66 tbsp</td></tr>
+            <tr><td>Black pepper</td><td>0.25 tsp</td><td>1.3 tbsp</td></tr>
+          </table>
+          <div class="recipe-note">Sear 2 min each side. Baste with butter and garlic. Finish in oven at 400&deg;F. Medium-rare 130-135&deg;F internal.</div>
+        </div>
       </div>
     </div>
     <div class="prep-row">
@@ -1105,12 +1160,34 @@
         <div class="prep-note">Flag and plate 3 allergy-safe dinners before general plating. Deliver separately.</div>
       </div>
     </div>
-    <div class="prep-row">
+    <div class="prep-row has-recipe" onclick="toggleRecipe('recipe-sides')">
       <div class="prep-time">6:30 PM</div>
       <div class="prep-bar-wrap">
-        <div class="prep-label">Dinner service rollout</div>
+        <div class="prep-label">Dinner service rollout <span class="recipe-toggle">▼ VIEW SIDES</span></div>
         <div class="prep-bar" data-start="18:30" data-end="19:50" style="width:2%;"></div>
         <div class="prep-note">Head table first. Coordinate plating speed with service team. Expo active.</div>
+        <div class="recipe-card" id="recipe-sides">
+          <h4>Garlic Mashed Potatoes &mdash; 187 portions</h4>
+          <table class="recipe-table">
+            <tr><th>Ingredient</th><th>Per Portion</th><th>Total (187)</th></tr>
+            <tr><td>Yukon Gold potatoes</td><td>6 oz</td><td>70.1 lbs</td></tr>
+            <tr><td>Butter</td><td>1 tbsp</td><td>11.7 cups</td></tr>
+            <tr><td>Heavy cream</td><td>2 tbsp</td><td>23.4 cups</td></tr>
+            <tr><td>Roasted garlic</td><td>0.5 tsp</td><td>6.2 tbsp</td></tr>
+            <tr><td>Salt &amp; white pepper</td><td>to taste</td><td>to taste</td></tr>
+          </table>
+          <div class="recipe-note">Boil until fork tender. Drain fully. Rice or mash. Fold in butter, cream, garlic. Keep warm in hotel pans.</div>
+          <h4 style="margin-top: 14px;">Roasted Green Beans &mdash; 187 portions</h4>
+          <table class="recipe-table">
+            <tr><th>Ingredient</th><th>Per Portion</th><th>Total (187)</th></tr>
+            <tr><td>Fresh green beans</td><td>4 oz</td><td>46.75 lbs</td></tr>
+            <tr><td>Olive oil</td><td>1 tsp</td><td>1.95 cups</td></tr>
+            <tr><td>Garlic, minced</td><td>0.25 tsp</td><td>3.1 tbsp</td></tr>
+            <tr><td>Salt &amp; pepper</td><td>to taste</td><td>to taste</td></tr>
+            <tr><td>Toasted almonds (opt.)</td><td>0.5 tsp</td><td>3.1 tbsp</td></tr>
+          </table>
+          <div class="recipe-note">Toss with oil and garlic. Roast at 425&deg;F for 12-15 min. Slight char is good. Do not overcook.</div>
+        </div>
       </div>
     </div>
     <div class="prep-row">
@@ -1937,6 +2014,17 @@ function updatePrepBars() {
 }
 updatePrepBars();
 setInterval(updatePrepBars, 10000);
+</script>
+
+
+<script>
+function toggleRecipe(id) {
+  const card = document.getElementById(id);
+  if (card) card.classList.toggle('open');
+  const row = card.closest('.prep-row');
+  const toggle = row.querySelector('.recipe-toggle');
+  if (toggle) toggle.textContent = card.classList.contains('open') ? '▲ HIDE' : '▼ VIEW RECIPES';
+}
 </script>
 
 </body>
