@@ -639,6 +639,23 @@
   .recipe-table tr:last-child td { border-bottom: none; }
   .recipe-note { margin-top: 10px; padding: 8px 10px; background: #111827; border-left: 2px solid #C8A96A; font-size: 11px; color: #8899bb; border-radius: 2px; }
 
+
+  /* ===== BAR LAYOUT ===== */
+  .bar-layout-wrap { background: #0d1526; border: 1px solid #C8A96A33; border-radius: 8px; padding: 20px; margin-bottom: 4px; }
+  .bar-counter { background: #1a2a1a; border: 2px solid #4a7a4a; border-radius: 6px; padding: 14px 18px; margin-bottom: 16px; text-align: center; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: #6abf6a; font-weight: 700; }
+  .bar-zones { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .bar-zone { background: #111827; border: 1px solid #1e2a3a; border-radius: 6px; padding: 12px; }
+  .bar-zone-title { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: #C8A96A; margin-bottom: 8px; font-weight: 700; }
+  .bar-zone-items { font-size: 11px; color: #cdd5e0; line-height: 1.7; }
+  .bar-zone-items span { display: block; padding: 2px 0; border-bottom: 1px solid #1e2a3a; }
+  .bar-zone-items span:last-child { border-bottom: none; }
+  .garnish-station { background: #111827; border: 1px solid #C8A96A22; border-radius: 6px; padding: 14px 16px; }
+  .garnish-title { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: #C8A96A; margin-bottom: 10px; font-weight: 700; }
+  .garnish-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .garnish-item { background: #0d1526; border-radius: 4px; padding: 8px 10px; font-size: 11px; }
+  .garnish-item strong { display: block; color: #C8A96A; margin-bottom: 2px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .garnish-item span { color: #8899bb; }
+
   /* ===== CONTACT CARD ===== */
   .contact-pair {
     display: grid;
@@ -1316,6 +1333,83 @@
 <!-- TAB 3: BAR -->
 <!-- ===================================================================== -->
 <div id="tab-bar" class="tab-content">
+
+  <!-- Bar Layout -->
+  <div class="section-heading">
+    <h2>Bar Layout &amp; Well Setup</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="bar-layout-wrap">
+    <div class="bar-counter">&#9632;&#9632;&#9632; Bar Counter &mdash; Event: Johnson-Hartley Wedding &mdash; 187 Guests &mdash; Premium Tier &#9632;&#9632;&#9632;</div>
+
+    <div class="bar-zones">
+      <div class="bar-zone">
+        <div class="bar-zone-title">Well 1 &mdash; Spirits</div>
+        <div class="bar-zone-items">
+          <span>&#128310; Tito&#39;s Handmade Vodka</span>
+          <span>&#128310; Tanqueray Gin</span>
+          <span>&#128310; Bacardi Superior Rum</span>
+          <span>&#128310; Patron Silver Tequila</span>
+          <span>&#128310; Jack Daniel&#39;s Whiskey</span>
+          <span>&#128310; Jameson Irish Whiskey</span>
+        </div>
+      </div>
+      <div class="bar-zone">
+        <div class="bar-zone-title">Well 2 &mdash; Mixers &amp; Soda</div>
+        <div class="bar-zone-items">
+          <span>&#128310; Tonic water (2 cases)</span>
+          <span>&#128310; Club soda (2 cases)</span>
+          <span>&#128310; Coke, Diet Coke, Sprite</span>
+          <span>&#128310; Ginger beer</span>
+          <span>&#128310; OJ, cranberry, pineapple</span>
+          <span>&#128310; Simple syrup, grenadine</span>
+        </div>
+      </div>
+      <div class="bar-zone">
+        <div class="bar-zone-title">Well 3 &mdash; Wine &amp; Beer</div>
+        <div class="bar-zone-items">
+          <span>&#128310; Meiomi Pinot Noir (6 btl)</span>
+          <span>&#128310; Kim Crawford Sauvignon (6 btl)</span>
+          <span>&#128310; La Marca Prosecco (24 btl)</span>
+          <span>&#128310; Bud Light (2 cases)</span>
+          <span>&#128310; Bell&#39;s Two Hearted (1 case)</span>
+          <span>&#128310; Athletic NA Beer (12 cans)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="garnish-station">
+      <div class="garnish-title">&#127802; Garnish Station &mdash; Prepped by 5:00 PM</div>
+      <div class="garnish-grid">
+        <div class="garnish-item">
+          <strong>Citrus</strong>
+          <span>Lemon wheels x 40, lime wedges x 40, orange slices x 20</span>
+        </div>
+        <div class="garnish-item">
+          <strong>Specialty Cocktail</strong>
+          <span>Cucumber ribbons x 30, edible flowers x 30 (Garden Mule feature)</span>
+        </div>
+        <div class="garnish-item">
+          <strong>Cherries &amp; Olives</strong>
+          <span>Luxardo cherries (jar), Castelvetrano olives (small bowl)</span>
+        </div>
+        <div class="garnish-item">
+          <strong>Fresh Herbs</strong>
+          <span>Mint sprigs x 20, rosemary sprigs x 10</span>
+        </div>
+        <div class="garnish-item">
+          <strong>Salted Rim</strong>
+          <span>Kosher salt + Tajin blend, two small plates staged</span>
+        </div>
+        <div class="garnish-item">
+          <strong>Champagne Toast</strong>
+          <span>187 flutes staged on trays. Begin pouring 7:00 PM.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <div class="section-heading">
     <h2>Bar Staff</h2>
