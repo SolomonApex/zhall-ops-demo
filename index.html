@@ -1908,5 +1908,36 @@
   }
 </script>
 
+
+<script>
+function updatePrepBars() {
+  const now = new Date();
+  const bars = document.querySelectorAll('.prep-bar[data-start]');
+  bars.forEach(bar => {
+    const [startH, startM] = bar.dataset.start.split(':').map(Number);
+    const [endH, endM] = bar.dataset.end.split(':').map(Number);
+    const start = new Date(now); start.setHours(startH, startM, 0, 0);
+    const end = new Date(now); end.setHours(endH, endM, 0, 0);
+    const total = end - start;
+    const elapsed = now - start;
+    let pct = 0;
+    if (elapsed >= total) {
+      pct = 100;
+      bar.style.background = 'linear-gradient(90deg, #4a7fa5, #6a9fc5)';
+    } else if (elapsed > 0) {
+      pct = Math.round((elapsed / total) * 100);
+      bar.style.background = 'linear-gradient(90deg, #C8A96A, #e8c97a)';
+    } else {
+      pct = 0;
+      bar.style.background = '#1e2a3a';
+    }
+    bar.style.width = Math.max(pct, 2) + '%';
+    bar.style.transition = 'width 1s linear';
+  });
+}
+updatePrepBars();
+setInterval(updatePrepBars, 10000);
+</script>
+
 </body>
 </html>
